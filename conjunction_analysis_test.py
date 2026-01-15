@@ -167,27 +167,6 @@ def compute_collision_probability(relative_position, combined_covariance, thresh
     # Compute the probability that satellites are within threshold distance
     # This is an approximation based on the relative position uncertainty
     
-    # Method 1: Simple radial probability (assumes spherical uncertainty)
-    # Scale the threshold by the uncertainty
-    eigenvalues = np.linalg.eigvalsh(P)
-    avg_std = np.sqrt(np.mean(eigenvalues))
-    
-    # Normalized distance in terms of average standard deviation
-    normalized_distance = miss_distance / avg_std if avg_std > 0 else np.inf
-    
-    # Method 2: More accurate - probability mass within threshold sphere
-    # Using the chi-squared distribution for radial distance
-    # The radial distance squared (in Mahalanobis space) follows chi2(3)
-    
-    # Transform threshold distance to Mahalanobis space
-    # For a sphere of radius R, find equivalent chi-squared threshold
-    if miss_distance > 0:
-        # The threshold creates a sphere; we need to find the chi-squared value
-        # that corresponds to this sphere in the warped Mahalanobis space
-        threshold_mahalanobis_sq = threshold_distance**2 / np.mean(eigenvalues)
-    else:
-        threshold_mahalanobis_sq = threshold_distance**2 / np.mean(eigenvalues)
-    
     # Probability of collision calculation
     # We need P(||r_true|| < threshold) where r_true ~ N(r_mean, P)
     # This is the probability that the true relative position is within the collision sphere
@@ -309,3 +288,16 @@ def main():
 
 if __name__  == "__main__":
     main()
+
+
+# TODO Implement probability mass within threshold sphere
+# Using the chi-squared distribution for radial distance
+# The radial distance squared (in Mahalanobis space) follows chi2(3)
+# Transform threshold distance to Mahalanobis space
+# For a sphere of radius R, find equivalent chi-squared threshold
+if miss_distance > 0:
+    # The threshold creates a sphere; we need to find the chi-squared value
+    # that corresponds to this sphere in the warped Mahalanobis space
+    threshold_mahalanobis_sq = threshold_distance**2 / np.mean(eigenvalues)
+else:
+    threshold_mahalanobis_sq = threshold_distance**2 / np.mean(eigenvalues)
